@@ -1,5 +1,5 @@
 {
-    "name": "Redrye/laravel-websockets-crud",
+    "name": "redrye/laravel-websockets-crud",
     "description": "Broadcast create, read, update, and delete events for realtime updates such as Datatables or custom information boxes",
     "require": {
         "beyondcode/laravel-websockets": "2.x-dev"

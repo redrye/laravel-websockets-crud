@@ -1,0 +1,178 @@
+<?php
+
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Exceptions\Handler;
+use App\Exceptions\InvalidData;
+// use App\Exceptions\ParamNotSent;
+use App\Models\UserType;
+use App\Models\User;
+
+class SubmitDataTest extends TestCase
+{
+
+	use DatabaseTransactions;
+	// use DatabaseMigrations;
+	/**
+	*
+	*/
+	public function is_status_code_200()
+	{
+		// test obviated by PostRequestTest
+		$this->markTestSkipped('must be revisited.');
+		
+		// documentation:
+		// https://laravel.com/docs/4.2/testing#calling-routes-from-tests
+		// $response = $this->call($method, $uri, $parameters, $files, $server, $content);
+		$usertype = factory(UserType::class)->create();
+		$user = factory(User::class)->create([
+			'user_type_id' => $usertype->id,
+		]);
+
+		$method = 'POST';
+		$vin = 'DJ762981623671';
+		$url = '/api/' . $vin . '/newdata';
+
+		$params = [
+			'api' => 123456
+		];
+
+		$contentArray = [
+			[
+				'users_id' => $user->id,
+				'truck_stamp' => time(),
+				'eld_event' => 9,
+				'eld_devices_id' => 1,
+			],
+			[
+				'users_id' => $user->id,
+				'truck_stamp' => time(),
+				'eld_event' => 2,
+				'eld_devices_id' => 1,
+			],
+		];
+
+		$res = $this->call(
+			$method,
+			$url,
+			$params,
+			[],
+			[],
+			['Content-Type' => 'application/json'],
+			json_encode($contentArray)
+		);
+
+		// var_dump($res);
+		// echo $res->exception;
+
+		$this->seeStatusCode(200);
+		// $this->assertEquals(200, $res->status());
+	}
+
+	/**
+	 * @expectedException App\Exceptions\ParamNotSent
+	 *
+	 * Here, we intentionally set the eld_event to null, to check if our
+	 * ParamNotSent exception is being triggered. In this test, no new Driver
+	 * Event rows will be created because we are throwing an exception in
+	 * ParamNotSent.php, which aborts the CreateDriverEvent method, terminating
+	 * the request.
+	 *
+	 */
+	public function check_for_param_not_sent_exception()
+	{
+
+		// test obviated by PostRequestTest
+		$this->markTestSkipped('must be revisited.');
+
+		putenv('PHPUNIT_TESTING=true');
+
+		$method = 'POST';
+		$vin = 'DJ762981623671';
+		$url = '/api/' . $vin . '/newdata';
+
+		$params = [
+			'api' => 123456
+		];
+
+		$contentArray = [
+			[
+				'users_id' => 9,
+				'truck_stamp' => time(),
+				'eld_event' => null,
+				'eld_devices_id' => 1,
+			],
+			[
+				'users_id' => 9,
+				'truck_stamp' => time(),
+				'eld_event' => null,
+				'eld_devices_id' => 1,
+			],
+		];
+
+		$res = $this->call(
+			$method,
+			$url,
+			$params,
+			[],
+			[],
+			['Content-Type' => 'application/json'],
+			json_encode($contentArray)
+		);
+
+		// var_dump($res);
+
+		putenv('PHPUNIT_TESTING=false');
+	}
+
+	/**
+	 */
+	public function check_if_driver_event_rows_created_when_sending_null_eld_event()
+	{
+
+		// test obviated by PostRequestTest
+		$this->markTestSkipped('must be revisited.');
+
+		putenv('PHPUNIT_TESTING=true');
+
+		$method = 'POST';
+		$vin = 'DJ762981623671';
+		$url = '/api/' . $vin . '/newdata';
+
+		$params = [
+			'api' => 123456
+		];
+
+		$contentArray = [
+			[
+				'users_id' => 9,
+				'truck_stamp' => time(),
+				'eld_event' => null,
+				'eld_devices_id' => 1,
+			],
+			[
+				'users_id' => 9,
+				'truck_stamp' => time(),
+				'eld_event' => null,
+				'eld_devices_id' => 1,
+			],
+		];
+
+		$res = $this->call(
+			$method,
+			$url,
+			$params,
+			[],
+			[],
+			['Content-Type' => 'application/json'],
+			json_encode($contentArray)
+		);
+
+		var_dump($res);
+
+		putenv('PHPUNIT_TESTING=false');
+	}
+	
+}
